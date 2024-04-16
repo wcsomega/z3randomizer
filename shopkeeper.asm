@@ -558,14 +558,7 @@ Shopkeeper_DrawNextItem:
         JSL.l AttemptItemSubstitution
         JSL.l ResolveLootIDLong
         STA.b Scrap0D
-	CMP.b #$2E : BNE + : BRA .potion
-	+ CMP.b #$2F : BNE + : BRA .potion
-	+ CMP.b #$30 : BEQ .potion
-	.normal
-		LDA.w .tile_indices, Y : BRA + ; get item gfx index
-	.potion
-		LDA.b #$C0 ; potion is #$C0 because it's already there in VRAM
-	+
+		LDA.w .tile_indices, Y ; get item gfx index
 	XBA
 
 	LDA.l ShopType : AND.b #$10 : BEQ +

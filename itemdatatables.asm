@@ -1265,9 +1265,9 @@ StandingItemGraphicsOffsets:
 	dw BigDecompressionBuffer+$1500        ; 2B - Full bottle (red)
 	dw BigDecompressionBuffer+$1500        ; 2C - Full bottle (green)
 	dw BigDecompressionBuffer+$1500        ; 2D - Full bottle (blue)
-	dw BigDecompressionBuffer+$1500        ; 2E - Potion refill (red)
-	dw BigDecompressionBuffer+$1500        ; 2F - Potion refill (green)
-	dw BigDecompressionBuffer+$1500        ; 30 - Potion refill (blue)
+	dw BigDecompressionBuffer+$1800        ; 2E - Potion refill (red)
+	dw BigDecompressionBuffer+$1800        ; 2F - Potion refill (green)
+	dw BigDecompressionBuffer+$1800        ; 30 - Potion refill (blue)
 	dw BigDecompressionBuffer+$1D00        ; 31 - 10 bombs
 	dw BigDecompressionBuffer+$15C0        ; 32 - Big key
 	dw BigDecompressionBuffer+$1580        ; 33 - Map
