@@ -1176,6 +1176,30 @@ JSL DrawMushroom
 org $85EE97 ; <- 2EE97 - sprite_mushroom.asm : 81
 NOP #14
 ;--------------------------------------------------------------------------------
+org $06C09C
+JSL SpritePrep_Shopkeeper_PotionShop
+
+org $05F521
+SpritePrep_PotionShopLong:
+
+org $05F539
+SpawnMagicPowder:
+;--------------------------------------------------------------------------------
+org $05f568 ; manually set position of powder item
+LDA #$b0 : STA $0D00, Y : LDA #$90 : STA $0D10, Y
+LDA #$21 : STA $0D20, Y : LDA #$12 : STA $0D30, Y
+JMP $F61D
+;--------------------------------------------------------------------------------
+org $05F633
+JSL Sprite_ShopkeeperPotion : RTS : NOP
+PotionShopkeeperJumpTable:
+
+org $05F893
+Sprite_WitchAssistant:
+
+org $05F644
+Sprite_MagicPowderItem:
+;--------------------------------------------------------------------------------
 org $87A36F ; <- 3A36F - Bank07.asm : 5679
 NOP #5
 org $87A379 ; <- 3A379 - Bank07.asm : 5687

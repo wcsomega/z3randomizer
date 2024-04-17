@@ -23,6 +23,7 @@ macro DrawDigit(value,offset)
 	+
 	LDA.b Scrap0E : STA.l BigRAM, X : INX : INX
 	LDA.w #56 : STA.l BigRAM, X : INX : INX
+  LDA RoomIndex : CMP.l #$109 : BNE + : LDA.w #$FFCA : STA BigRAM-2, X : +
 	LDY.b Scrap0A : TYA : ASL : TAY : LDA.w .digit_properties, Y : STA.l BigRAM, X : INX : INX
 	LDA.w #$0000 : STA.l BigRAM, X : INX : INX
 	
@@ -436,6 +437,7 @@ Setup_ShopItemCollisionHitbox:
         REP #$20 ; set 16-bit accumulator
         PHA : PHY
         LDA.l ShopType : AND.w #$0003 : DEC : ASL : TAY
+        LDA RoomIndex : CMP.l #$109 : BNE + : INY #6 : +
         LDA.w Shopkeeper_DrawNextItem_item_offsets_idx, Y : STA.b Scrap00 ; get table from the table table
         PLY : PLA
     
@@ -542,6 +544,7 @@ Shopkeeper_DrawNextItem:
 
 	LDA.l ShopType : AND.b #$03 : DEC : ASL : TAY
 	REP #$20 ; set 16-bit accumulator
+  LDA RoomIndex : CMP.l #$109 : BNE + : INY #6 : +
 	LDA.w .item_offsets_idx, Y : STA.b Scrap00 ; get table from the table table
 	LDA.b 1,s : ASL #2 : TAY ; set Y to the item index
 	LDA.b ($00), Y : STA.l SpriteOAM ; load X-coordinate
@@ -603,10 +606,14 @@ Shopkeeper_DrawNextItem:
 	INX #4
 RTS
 ;--------------------------------------------------------------------------------
-.item_offsets_idx
+.item_offsets_idx ; 112 60
 dw #.item_offsets_1
 dw #.item_offsets_2
 dw #.item_offsets_3
+.item_offsets_idx_Potion ; 160 176 - (112 64) = (48 112)
+dw #.item_offsets_1p
+dw #.item_offsets_2p
+dw #.item_offsets_3p
 .item_offsets_1
 dw 8, 40
 .item_offsets_2
@@ -616,8 +623,19 @@ dw 32, 40
 dw -40, 40
 dw 8, 40
 dw 56, 40
+.item_offsets_1p
+dw -40, -72
+.item_offsets_2p
+dw -64, -72
+dw -16, -72
+.item_offsets_3p
+dw -88, -72
+dw -40, -72
+dw 8, -72
+.potion_offset
+dw -16, 0
 .tile_indices
-db $C6, $C8, $CA
+db $C6, $C8, $CA, $25 ; last bit is for sheet change
 ;--------------------------------------------------------------------------------
 Shopkeeper_DrawNextPrice:
         PHB : PHK : PLB
@@ -626,6 +644,7 @@ Shopkeeper_DrawNextPrice:
         REP #$20 ; set 16-bit accumulator
         PHY
         LDA.l ShopType : AND.w #$0003 : DEC : ASL : TAY
+        LDA RoomIndex : CMP.l #$109 : BNE + : INY #6 : +
         LDA.w Shopkeeper_DrawNextItem_item_offsets_idx, Y : STA.b Scrap00 ; get table from the table table
         LDA.w .price_columns_idx, Y : STA.b Scrap02 ; get table from the table table
         PLY : PHY
@@ -721,3 +740,47 @@ RTS
 ;dw 64, 56 : db $30, $02, $00, $00
 ;dw 72, 56 : db $31, $02, $00, $00
 ;--------------------------------------------------------------------------------
+SpritePrep_Shopkeeper_PotionShop:
+  JSL SpritePrep_ShopKeeper
+  LDA.l ShopType : CMP.b #$FF : BNE +
+  JSL SpritePrep_PotionShopLong
+  RTL
++ LDX #$00
+  PHK : PEA.w .jslrtsreturn-1
+  PEA.w $05F527 ; an rtl address - 1 in bank 05
+  JML SpawnMagicPowder
+  .jslrtsreturn
+  RTL
+;--------------------------------------------------------------------------------
+Sprite_ShopkeeperPotion:
+  LDA.l ShopType : CMP.b #$FF : BNE + : JMP.w ShopkeeperPotion_CallOriginal : +
+  TXA : BEQ +
+    PHK : PEA.w .jslrtsreturn2-1
+    PEA.w $05F527 ; an rtl address - 1 in bank 05
+    JML Sprite_MagicPowderItem
+    .jslrtsreturn2
+    RTL
+  +
+
+  PHB : PHK : PLB
+    LDA RoomIndex : CMP.b #$09 : BNE +
+      JSR.w Shopkeeper_DrawItems
+      JSR.w Shopkeeper_SetupHitboxes
+    +
+  PLB
+
+  LDA SpriteItemType, X : BNE +
+    PHK : PEA.w .jslrtsreturn-1
+    PEA.w $05F527 ; an rtl address - 1 in bank 05
+    JML Sprite_WitchAssistant
+    .jslrtsreturn
+  +
+RTL
+;--------------------------------------------------------------------------------
+ShopkeeperPotion_CallOriginal:
+ PLA : PLA : PLA
+ LDA.b #PotionShopkeeperJumpTable>>16 : PHA
+ LDA.b #PotionShopkeeperJumpTable>>8 : PHA
+ LDA.b #PotionShopkeeperJumpTable : PHA
+ LDA.w SpriteItemType, X
+ JML.l JumpTableLocal
