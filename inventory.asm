@@ -542,6 +542,13 @@ LoadPowder:
 	STA.w SpriteID, Y
         TYX
 	JSL.l PrepDynamicTile_loot_resolved
+
+  STA $7F505E
+  ;LDA #$00
+  ;STA $7F505F
+  ;STA $7F5060
+  ;STA $7F5061
+
         PLX
 RTL
 ;--------------------------------------------------------------------------------
@@ -570,8 +577,9 @@ DrawPowder:
 		LDA.b #$00 : STA.l RedrawFlag ; reset redraw flag
 		BRA .defer
 	+
-	LDA.w SpriteID, X ; Retrieve stored item type
-	JSL.l DrawDynamicTile
+  LDA ShopType : CMP.b #$FF : BNE .defer
+	  LDA.w SpriteID, X ; Retrieve stored item type
+	  JSL.l DrawDynamicTile
 	.defer
 RTL
 ;--------------------------------------------------------------------------------

@@ -533,6 +533,15 @@ Shopkeeper_DrawItems:
 	+ CMP.b #$01 : BNE + : ++
 		JSR.w Shopkeeper_DrawNextItem
 	+
+  LDA RoomIndex : CMP.b #$09 : BNE +
+  LDA RedrawFlag : BNE +
+  LDA ItemReceiptPose : BNE +
+  LDA $7F505E : BEQ +
+  LDA OWTransitionFlag : BEQ +
+  LDA NpcFlags+1 : AND.b #$20 : BNE +
+    LDX.b #$0C : LDY.b #$03 : JSR.w Shopkeeper_DrawNextItem
+  +
+
 	PLY : PLX
 	PLB
 RTS
@@ -569,12 +578,19 @@ Shopkeeper_DrawNextItem:
 	+
 	XBA
 
+  AND #$FE
 	STA.l SpriteOAM+4
 
 	LDA.b Scrap0D
         PHX
 	JSL.l GetSpritePalette_resolved : STA.l SpriteOAM+5
         PLX
+
+  LDA.w .tile_indices, Y : AND.b #$01 : BEQ +
+    LDA.l SpriteOAM+5
+    ORA.b #$01
+    STA.l SpriteOAM+5
+  +
 
 	LDA.b #$00 : STA.l SpriteOAM+6
 
@@ -598,6 +614,7 @@ Shopkeeper_DrawNextItem:
 	PHX : PHA : LDA.l ShopScratch : TAX : PLA : JSR.w RequestItemOAM : PLX
 
 	LDA.l ShopType : AND.b #$80 : BNE +
+  CPX.b #12 : BEQ +
 		JSR.w Shopkeeper_DrawNextPrice
 	+
 
