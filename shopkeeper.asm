@@ -423,7 +423,7 @@ Shopkeeper_BuyItem:
 	PLY : PLX
 RTS
 Shopkeeper_ItemMasks:
-db #$01, #$02, #$04
+db #$01, #$02, #$04, #$08
 ;--------------------
 Setup_ShopItemCollisionHitbox:
 ;The complications with XBA are to handle the fact that nintendo likes to store
