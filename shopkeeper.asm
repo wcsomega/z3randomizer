@@ -172,7 +172,9 @@ SpritePrep_ShopKeeper:
 	PLP : PLY : PLX
 	
 	LDA.l ShopType : CMP.b #$FF : BNE +
-		PLA : PLA : PLA
+    LDA RoomIndex : CMP.b #$09 : BNE ++
+      RTL
+		++ PLA : PLA : PLA
         INC.w SpriteAncillaInteract, X
         LDA.w SpriteOAMProperties, X
 		JML.l ShopkeeperFinishInit
