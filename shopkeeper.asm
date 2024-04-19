@@ -541,7 +541,7 @@ Shopkeeper_DrawItems:
   LDA $7F505E : BEQ +
   LDA OWTransitionFlag : BEQ +
   LDA NpcFlags+1 : AND.b #$20 : BNE +
-    LDX.b #$0C : LDY.b #$03 : JSR.w Shopkeeper_DrawNextItem
+    LDX.b #$0C : LDY.b #$03 : JSR.w ShopkeeperPotion_DrawPowderItem
   +
 
 	PLY : PLX
@@ -803,3 +803,48 @@ ShopkeeperPotion_CallOriginal:
  LDA.b #PotionShopkeeperJumpTable : PHA
  LDA.w SpriteItemType, X
  JML.l JumpTableLocal
+;--------------------------------------------------------------------------------
+ShopkeeperPotion_DrawPowderItem:
+
+  REP #$20 ; set 16-bit accumulator
+	LDA.w #-16 : STA.l SpriteOAM   ; load X-coordinate
+  LDA.w #00  : STA.l SpriteOAM+2 ; load Y-coordinate
+
+	SEP #$20 ; set 8-bit accumulator
+	LDA.l $7F505E ; get item id
+  JSL.l AttemptItemSubstitution
+  JSL.l ResolveLootIDLong
+  STA.b Scrap0D
+
+	LDA.b #$25 ; get item gfx index
+
+  AND #$FE
+	STA.l SpriteOAM+4
+
+	LDA.b Scrap0D
+  PHX
+	JSL.l GetSpritePalette_resolved : ORA.b #$01 : STA.l SpriteOAM+5
+  PLX
+
+	LDA.b #$00 : STA.l SpriteOAM+6
+
+	LDA.b Scrap0D
+  PHX
+  TAX
+  LDA.l SpriteProperties_standing_width,X : BEQ .narrow
+
+  .full
+    PLX
+		LDA.b #$02
+		STA.l SpriteOAM+7
+		LDA.b #$01
+		BRA ++
+	.narrow
+    PLX
+		LDA.b #$00
+		STA.l SpriteOAM+7
+		JSR.w PrepNarrowLower
+		LDA.b #$02
+	++
+	PHX : PHA : LDA.l ShopScratch : TAX : PLA : JSR.w RequestItemOAM : PLX
+RTS
