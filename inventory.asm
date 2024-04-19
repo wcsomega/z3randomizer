@@ -540,10 +540,10 @@ LoadPowder:
         JSL.l AttemptItemSubstitution
         JSL.l ResolveLootIDLong
 	STA.w SpriteID, Y
+  STA $7F505E
         TYX
 	JSL.l PrepDynamicTile_loot_resolved
 
-  STA $7F505E
   ;LDA #$00
   ;STA $7F505F
   ;STA $7F5060
